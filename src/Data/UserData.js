@@ -1,4 +1,5 @@
 import { Serializeable } from './Interface.js';
+
 export { User, Sprite };
 
 class User extends Serializeable {
@@ -7,7 +8,17 @@ class User extends Serializeable {
     character;
     sprite;
 
-    /* String, String, Int, Sprite */
+    /* Optional things for deserialization of server data */
+    id;
+    position;
+    state;
+
+    /**
+     * @param {String} name User name
+     * @param {String} color hex-color String of 6 symbols
+     * @param {Integer} character character number
+     * @param {Sprite} sprite user sprite
+     */
     constructor (name, color, character, sprite) {
         super();
         this.name = name;
@@ -17,7 +28,19 @@ class User extends Serializeable {
     }
 
     static Copy (user) {
-        return new User (user.name, user.color, user.character, Sprite.Copy(user.sprite));
+        let ret = new User (user.name, user.color, user.character, Sprite.Copy(user.sprite));
+        
+        // should be just replaced with Object.assign...
+        if (user.id)
+            ret.id = user.id;
+        if (user.position)
+            ret.position = user.position;
+        if (user.character)
+            ret.character = user.character;
+        if (user.state)
+            ret.state = user.state;
+        
+        return ret;
     }
 }
 
@@ -27,7 +50,6 @@ class Sprite extends Serializeable {
     cloth;
     accessory;
 
-    /* Int... */
     constructor (body, emotion = 0, cloth = 0, accessory = 0) {
         super();
         this.body = body;

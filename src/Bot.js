@@ -1,5 +1,3 @@
-'use strict';
-
 import WebSocket from 'websocket';
 
 import { EventEmitter } from 'events'
@@ -8,6 +6,8 @@ import { Log, Random } from './Util.js';
 import { Serializeable } from './Data/Interface.js';
 import Config from './Config.js';
 import { ClientCodes, ServerCodes } from './Data/ClientApi.js';
+import Node from './Data/Node.js';
+import { User } from './Data/UserData.js';
 
 const WebSocketClient = WebSocket.client;
 
@@ -19,8 +19,10 @@ const BotEvents = {
     error: 'error'
 };
 
+const GameEvents = ServerCodes;
+
 class Bot {
-    static GameEvents = ServerCodes;
+    static GameEvents = GameEvents;
     static BotEvents = BotEvents;
 
     client;
@@ -76,7 +78,7 @@ class Bot {
         if (message.type == 'utf8') {
             if (!this.#id) {
                 this.#id = parseInt(message.utf8Data);
-                this.eventEmitter.emit(BotEvents.ready);
+                this.eventEmitter.emit(BotEvents.ready, this.#id);
             }
             else {
                 let parsed = JSON.parse(message.utf8Data);
@@ -92,7 +94,38 @@ class Bot {
      * @todo should intelligently cast to predefined data type instead of emitting raw objects
      */
     processRawGameEvent (obj) {
-        this.eventEmitter.emit(obj.reason, obj);
+        let data;
+        switch (obj.reason) {
+            case GameEvents.nodeData:
+                data = Node.Copy(obj);
+                break;
+            case GameEvents.userJoined:
+                data = User.Copy(obj.user);
+                break;
+            case GameEvents.userLeft:
+                data = obj.id;
+                break;
+            case GameEvents.userUpdate:
+                data = User.Copy(obj.user);
+                break;
+            case GameEvents.nodeAction:
+                data = obj.code;
+                break;
+            case GameEvents.map:
+                data = obj.data;
+                break;
+
+            case GameEvents.chat:
+            case GameEvents.dice:
+            case GameEvents.roll:
+            case GameEvents.tryMessage:
+                data = obj;
+                break;
+            default:
+                data = obj;
+
+        }
+        this.eventEmitter.emit(obj.reason, data);
     }
 
     /**
@@ -163,10 +196,9 @@ class Bot {
         return this;
     }
 
-    off (eventCode, handler, asIs = false) {
-        // Log.d('Call off ' + eventCode);
+    off (eventCode, handler) {
         const pairs = this.handlerPairs;
-        let index = pairs.findIndex(pair => pair[0] == handler);
+        let index = pairs.findIndex(pair => pair[0] === handler);
         if (index >= 0) {
             this.eventEmitter.off(eventCode, pairs[index][1]);
             pairs.splice(index, 1);

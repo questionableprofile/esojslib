@@ -34,7 +34,11 @@ const ServerCodes = {
     userJoined: 'userJoin',
     userLeft: 'userLeave',
     dice: 'diceResult',
-    roll: 'userRoll'
+    roll: 'userRoll',
+    try: 'tryMessage',
+    map: 'mapData',
+    broadcast: 'serverBroadcast',
+    timecode: 'serverTimecode'
     /* to be continued... */
 };
 

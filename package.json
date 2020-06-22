@@ -1,0 +1,28 @@
+{
+  "type": "module",
+  "name": "esojslib",
+  "version": "1.0.0",
+  "description": "JS client library for ESO",
+  "main": "Main.js",
+  "dependencies": {
+    "websocket": "^1.0.31"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "node src/Main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/questionableprofile/esojslib.git"
+  },
+  "keywords": [
+    "ESO",
+    "library"
+  ],
+  "author": "ESO community",
+  "license": "Unlicense",
+  "bugs": {
+    "url": "https://github.com/questionableprofile/esojslib/issues"
+  },
+  "homepage": "https://github.com/questionableprofile/esojslib#readme"
+}

@@ -1,7 +1,7 @@
 import Bot from './Bot.js';
 import Config from './Config.js';
 import { User, Sprite } from './Data/UserData.js';
-import { UserInit, Move, ChatMessage, Roll } from './Data/ClientApi.js';
+import { UserInit, Move, ChatMessage, Roll, DiceRoll, Dice } from './Data/ClientApi.js';
 import { Log, Random } from './Util.js';
 
 const sprite = new Sprite(852, 853, 0);
@@ -55,6 +55,7 @@ function initPlayer (id) {
     bot.sendObject(new UserInit(bot.id, nodeCode, user));
     // bot.sendObject(Move.toPosition(Random.minMax(-20, 20)));
     // bot.sendObject(Move.toPosition(-50));
+    bot.sendObject(new DiceRoll([Dice.Roll(2, 6)]));
 }
 
 function chat (msg) {

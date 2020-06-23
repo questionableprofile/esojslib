@@ -9,7 +9,10 @@ export {
     ChatMessage,
     UpdateSprite,
     Move,
-    Roll
+    Roll,
+    NodeAction,
+    Dice,
+    DiceRoll
 };
 
 /**
@@ -20,7 +23,9 @@ const ClientCodes = {
     chat: 'chat',
     sprite: 'updateSprite',
     move: 'clientMove',
-    roll: 'clientRoll'
+    roll: 'clientRoll',
+    dice: 'diceRoll',
+    nodeAction: 'performAction'
 };
 
 /**
@@ -134,5 +139,55 @@ class Move extends Base {
 class Roll extends Base {
     constructor () {
         super(ClientCodes.roll);
+    }
+}
+
+/**
+ * Just an action code, unique for every node
+ */
+class NodeAction extends Base {
+    code;
+
+    constructor (code) {
+        super(ClientCodes.nodeAction);
+        this.code = code;
+    }
+}
+
+class Dice {
+    num;
+    count;
+    sides;
+
+    /**
+     * Dice single roll type representation
+     * @param {Integer} num the result number from server
+     * @param {Integer} count how many dices of this type we want to throw. 0 < N <= 12
+     * @param {Integer} sides number of sides of the dice. 2 < N <= 16
+     */
+    constructor (num, count, sides) {
+        this.num = num;
+        this.count = count;
+        this.sides = sides;
+    }
+
+    static Roll (count, sides) {
+        return new Dice(-1, count, sides);
+    }
+
+    static Result (obj) {
+        return Object.assign(new Dice(), obj);
+    }
+}
+
+class DiceRoll extends Base {
+    rolls;
+
+    /**
+     * @param {Array<Dice>} rolls array that represent dices we want to throw
+     */
+    constructor (rolls) {
+        super(ClientCodes.dice);
+        this.rolls = rolls;
     }
 }

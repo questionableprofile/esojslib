@@ -1,6 +1,6 @@
 import WebSocket from 'websocket';
 
-import { EventEmitter } from 'events'
+import { EventEmitter } from 'events';
 
 import { Log, Random } from './Util.js';
 import { Serializeable } from './Data/Interface.js';
@@ -130,9 +130,9 @@ class Bot {
             case GameEvents.tryMessage:
                 data = obj;
                 break;
+                
             default:
                 data = obj;
-
         }
         this.eventEmitter.emit(obj.reason, data);
     }

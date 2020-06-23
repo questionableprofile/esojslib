@@ -4,10 +4,10 @@ import { EventEmitter } from 'events'
 
 import { Log, Random } from './Util.js';
 import { Serializeable } from './Data/Interface.js';
-import Config from './Config.js';
 import { ClientCodes, ServerCodes } from './Data/ClientApi.js';
 import Node from './Data/Node.js';
 import { User } from './Data/UserData.js';
+import Config from './Config.js';
 
 const WebSocketClient = WebSocket.client;
 
@@ -24,6 +24,8 @@ const GameEvents = ServerCodes;
 class Bot {
     static GameEvents = GameEvents;
     static BotEvents = BotEvents;
+
+    config;
 
     client;
     connection;
@@ -44,13 +46,20 @@ class Bot {
         return;
     }
 
-    constructor () {
+    constructor (userConfig = null) {
+        if (!userConfig) {
+            Log.warn('constructing client, using default configuration');
+            this.config = Config.Default();
+        }
+        else
+            this.config = Config.From(userConfig);
+        
         this.client = new WebSocketClient();
         this.client.on('connect', (conn) => this.connnectHandler(conn));
     }
 
     connect () {
-        this.client.connect(Config.targetWsUrl);
+        this.client.connect(this.config.WsUrl);
     }
 
     connnectHandler (connection) {
@@ -91,7 +100,7 @@ class Bot {
     /**
      * 
      * @param {Object} obj parsed JSON coming from socket
-     * @todo should intelligently cast to predefined data type instead of emitting raw objects
+     * @todo should intelligently cast to predefined data type instead of emitting raw objects. Done?
      */
     processRawGameEvent (obj) {
         let data;

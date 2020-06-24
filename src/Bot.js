@@ -59,6 +59,7 @@ class Bot {
     }
 
     connect () {
+        Log.d(`connecting to ${this.config.WsUrl}`);
         this.client.connect(this.config.WsUrl);
     }
 

@@ -1,13 +1,15 @@
 {
   "type": "module",
   "name": "esojslib",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "JS client library for ESO",
   "main": "Main.js",
   "dependencies": {
     "websocket": "^1.0.31"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^7.3.1"
+  },
   "scripts": {
     "test": "node src/Main.js"
   },

@@ -1,9 +1,19 @@
+import Config from './Config.js';
+
 export { Log, Random };
 
 const Log = {
-    d: (message) => console.log(`Debug: ${message}`),
-    err: (message) => console.error(`Error: ${message}`),
-    info: (message) => console.info(`Info: ${message}`)
+    d: (message, level = 0) => 
+    {
+        if (level >= Config.GetDefault().Log.debugLevel)
+            console.log(`ESO Debug: ${message}`)
+    },
+    err: (message) => console.error(`ESO Error: ${message}`),
+    info: (message) => console.info(`ESO Info: ${message}`),
+    warn: (message) => {
+        if (!Config.GetDefault().Log.supressWarnings)
+            console.warn(`ESO Warning: ${message}`);
+    }
 }
 
 const Random = {

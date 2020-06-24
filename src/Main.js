@@ -1,48 +1,61 @@
 import Bot from './Bot.js';
+import Config from './Config.js';
 import { User, Sprite } from './Data/UserData.js';
-import { UserInit, Move, ChatMessage, Roll } from './Data/ClientApi.js';
+import { UserInit, Move, ChatMessage, Roll, DiceRoll, Dice } from './Data/ClientApi.js';
 import { Log, Random } from './Util.js';
 
-let sprite = new Sprite(858, 859);
-let user = new User("Human Bean", "ffffff", 31, sprite);
+const sprite = new Sprite(852, 853, 0);
+const user = new User("Human Bean", "ffffff", 31, sprite);
+const nodeCode = 'ext_tower_top';
 
 const BotEvents = Bot.BotEvents;
 const GameEvents = Bot.GameEvents;
+
+const targetId = 2;
+let target;
+
+const myConfig = {
+    Log: {
+        debugLevel: 0
+    }
+};
+
+Config.AssignDefault(Config.From(myConfig));
 
 let bot = new Bot();
 bot
     .once(BotEvents.connect, () => { })
     .on(BotEvents.ready, initPlayer)
-    .on(GameEvents.roll, (roll) => numQuest(roll), (roll) => roll.id != bot.id);
-    
-let tasks = [];
+    // .on(GameEvents.roll, (roll) => numQuest(roll), (roll) => roll.id != bot.id);
+    .on(GameEvents.nodeData, (n) => {
+        n.users.forEach(u => {
+            if (u.id === targetId) {
+                target = User.Copy(u);
+                Log.d(`target ${target.name}:${target.id} ${target.position} acquired`);
+                bot.sendObject(Move.toPosition(target.position));
+            }
+        });
+    })
+    .on(GameEvents.userUpdate, (data) => {
+        if (target) {
+            if (data.id === target.id && data.position != target.position) {
+                target.position = data.position;
+                if (target.position)
+                    bot.sendObject(Move.toPosition(target.position + Random.minMax(-15, 15)))
+                    // bot.sendObject(Move.toPosition(Random.minMax(-20, 20)));
+            }
+        }
+    })
 
-function answer (num, myNum) {
-    if (num < myNum)
-        chat(`${num} < ${myNum} Mine bigger`);
-    else
-        chat(`*промолчал (${num} > ${myNum})*`);
-};
-
-function numQuest (roll) {
-    // const user = roll.id;
-    bot.once(GameEvents.roll, (myRoll) => {
-        // tasks.push(() => answer(roll.num, myRoll.num));
-        answer(roll.num, myRoll.num);
-    }, (r) => r.id == bot.id);
-    tasks.push(sendRoll);
-}
-
-setInterval(() => {
-    if (tasks.length > 0)
-        (tasks.shift())();
-}, 5000);
 
 bot.connect();
 
-function initPlayer () {
-    bot.sendObject(new UserInit(bot.id, 'ext_lake', user));
-    bot.sendObject(Move.toPosition(Random.minMax(-20, 20)));
+function initPlayer (id) {
+    user.id = id;
+    bot.sendObject(new UserInit(bot.id, nodeCode, user));
+    // bot.sendObject(Move.toPosition(Random.minMax(-20, 20)));
+    // bot.sendObject(Move.toPosition(-50));
+    bot.sendObject(new DiceRoll([Dice.Roll(2, 6)]));
 }
 
 function chat (msg) {
